@@ -12,41 +12,24 @@ Vue.use(VueRouter);
 const router = new VueRouter({
     mode: "history",
     routes: [{
-            path: "/",
-            name: "admin",
-            component: importComponent('DashboardLayout'),
-            children: [
-                //Dashboard
-                {
-                    path: "/",
-                    name: "Root",
-                    component: importComponent('Dashboard'),
-                },
-                // To do list
-                {
-                    path: "/gd",
-                    name: "Guided",
-                    component: importComponent('TodoList/List'),
-                },
-                // To do list UGD
-                {
-                    path: "/ugd",
-                    name: "Unguided",
-                    component: importComponent('TodoList/ListUGD'),
-                },
-                // To do list Tugas
-                {
-                    path: "/tugas",
-                    name: "unguided",
-                    component: importComponent('TodoList/ListTugas'),
-                },
-            ]
-        },
-        {
-            path: '*',
-            redirect: '/'
-        },
-    ]
+        path: "/",
+        name: "admin",
+        component: importComponent('DashboardLayout'),
+        children: [
+            //Dashboard
+            {
+                path: "/",
+                name: "Root",
+                component: importComponent('Dashboard'),
+            },
+            // To do list
+            {
+                path: "/gd",
+                name: "Guided",
+                component: importComponent('TodoList/List'),
+            },
+        ]
+    }, ]
 });
 
 export default router;
