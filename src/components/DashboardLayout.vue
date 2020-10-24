@@ -5,12 +5,8 @@
     <v-navigation-drawer class="fullheight" width="256" permanent app fixed>
       <v-list-item>
         <v-list-item-content>
-          <v-list-item-title class="title">
-            Nama Kalian
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            NPM
-          </v-list-item-subtitle>
+          <v-list-item-title class="title"> Nama Kalian </v-list-item-title>
+          <v-list-item-subtitle> NPM </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
 
@@ -46,7 +42,6 @@ export default {
         { title: "UGD", to: "/ugd" },
         { title: "Tugas", to: "/tugas" },
       ],
-      right: null,
     };
   },
 };
