@@ -14,16 +14,27 @@
           hide-details
         ></v-text-field>
         <v-spacer></v-spacer>
-        <v-btn color="success" dark @click="dialog = true">
-          Tambah
-        </v-btn>
+        <v-select
+          :items="['All priority', 'Penting', 'Biasa', 'Tidak penting']"
+          v-model="filterPriority"
+          outlined
+          label="Priority"
+          class="mr-3"
+          hide-details
+          dense
+        ></v-select>
+        <v-btn color="success" dark @click="dialog = true"> Tambah </v-btn>
       </v-card-title>
-      <v-data-table :headers="headers" :items="todos" :search="search">
-        <template v-slot:[`item.priority`]="{ item }">
+      <v-data-table
+        :headers="headers"
+        :items="filteredPriority"
+        :search="search"
+      >
+        <!-- <template v-slot:[`item.priority`]="{ item }">
           <v-chip :color="getColorPriority(item.priority)" label outlined>
             {{ item.priority }}
           </v-chip>
-        </template>
+        </template> -->
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon color="info" class="mr-2" @click="setFormEdit(item)">
             mdi-pencil
@@ -64,30 +75,22 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="cancel">
-            Cancel
-          </v-btn>
-          <v-btn color="blue darken-1" text @click="save(idEdit)">
-            Save
-          </v-btn>
+          <v-btn color="blue darken-1" text @click="cancel"> Cancel </v-btn>
+          <v-btn color="blue darken-1" text @click="save(idEdit)"> Save </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="dialogDelete" persistent max-width="350">
       <v-card>
-        <v-card-title class="headline">
-          Yakin ingin menghapus?
-        </v-card-title>
+        <v-card-title class="headline"> Yakin ingin menghapus? </v-card-title>
         <v-card-text></v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" text @click="cancelDelete">
             Tidak
           </v-btn>
-          <v-btn color="red darken-1" text @click="deleteItem()">
-            Ya
-          </v-btn>
+          <v-btn color="red darken-1" text @click="deleteItem()"> Ya </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -101,6 +104,7 @@ export default {
       search: null,
       dialog: false,
       dialogDelete: false,
+      filterPriority: "All priority",
       headers: [
         {
           text: "Task",
@@ -138,7 +142,6 @@ export default {
   },
   methods: {
     getColorPriority(priority) {
-      console.log(priority);
       if (priority === "Penting") return "error";
       else if (priority === "Biasa") return "info";
       else return "success";
@@ -191,6 +194,17 @@ export default {
       this.todos.splice(this.idEdit, 1);
       this.resetForm();
       this.dialogDelete = false;
+    },
+  },
+  computed: {
+    filteredPriority() {
+      if (this.filterPriority == "All priority") {
+        return this.todos;
+      } else {
+        return this.todos.filter((todo) => {
+          return todo.priority == this.filterPriority;
+        });
+      }
     },
   },
 };
