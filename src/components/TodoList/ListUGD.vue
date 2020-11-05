@@ -14,9 +14,7 @@
           hide-details
         ></v-text-field>
         <v-spacer></v-spacer>
-        <v-btn color="success" dark @click="dialog = true">
-          Tambah
-        </v-btn>
+        <v-btn color="success" dark @click="dialog = true"> Tambah </v-btn>
       </v-card-title>
       <v-data-table :headers="headers" :items="todos" :search="search">
         <template v-slot:[`item.priority`]="{ item }">
@@ -25,6 +23,9 @@
           </v-chip>
         </template>
         <template v-slot:[`item.actions`]="{ item }">
+          <v-icon color="purple" class="mr-2" @click="openDialogDetail(item)">
+            mdi-text-box-search-outline
+          </v-icon>
           <v-icon color="info" class="mr-2" @click="setFormEdit(item)">
             mdi-pencil
           </v-icon>
@@ -34,6 +35,36 @@
         </template>
       </v-data-table>
     </v-card>
+
+    <!-- ============= -->
+    <!-- DIALOG DETAIL -->
+    <!-- ============= -->
+    <v-dialog v-model="dialogDetail.state" max-width="600px">
+      <v-card>
+        <v-card-text>
+          <v-container>
+            <h4 class="text-h4 mb-5 black--text">
+              {{ dialogDetail.judul }}
+            </h4>
+            <v-chip
+              :color="getColorPriority(dialogDetail.prioritas)"
+              label
+              outlined
+              class="mb-5"
+            >
+              {{ dialogDetail.prioritas }}
+            </v-chip>
+            <p class="subtitle-1">{{ dialogDetail.catatan }}</p>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="dialogDetail.state = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-dialog v-model="dialog" persistent max-width="600px">
       <v-card>
@@ -64,30 +95,22 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="cancel">
-            Cancel
-          </v-btn>
-          <v-btn color="blue darken-1" text @click="save(idEdit)">
-            Save
-          </v-btn>
+          <v-btn color="blue darken-1" text @click="cancel"> Cancel </v-btn>
+          <v-btn color="blue darken-1" text @click="save(idEdit)"> Save </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="dialogDelete" persistent max-width="350">
       <v-card>
-        <v-card-title class="headline">
-          Yakin ingin menghapus?
-        </v-card-title>
+        <v-card-title class="headline"> Yakin ingin menghapus? </v-card-title>
         <v-card-text></v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" text @click="cancelDelete">
             Tidak
           </v-btn>
-          <v-btn color="red darken-1" text @click="deleteItem()">
-            Ya
-          </v-btn>
+          <v-btn color="red darken-1" text @click="deleteItem()"> Ya </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -109,7 +132,6 @@ export default {
           value: "task",
         },
         { text: "Priority", value: "priority" },
-        { text: "Note", value: "note" },
         { text: "Actions", value: "actions" },
       ],
       todos: [
@@ -134,11 +156,16 @@ export default {
         priority: null,
         note: null,
       },
+      dialogDetail: {
+        state: false,
+        judul: null,
+        priority: null,
+        catatan: null,
+      },
     };
   },
   methods: {
     getColorPriority(priority) {
-      console.log(priority);
       if (priority === "Penting") return "error";
       else if (priority === "Biasa") return "info";
       else return "success";
@@ -191,6 +218,13 @@ export default {
       this.todos.splice(this.idEdit, 1);
       this.resetForm();
       this.dialogDelete = false;
+    },
+    openDialogDetail(todo) {
+      console.log(todo);
+      this.dialogDetail.state = true;
+      this.dialogDetail.judul = todo.task;
+      this.dialogDetail.prioritas = todo.priority;
+      this.dialogDetail.catatan = todo.note;
     },
   },
 };
