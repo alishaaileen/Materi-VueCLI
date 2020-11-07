@@ -18,7 +18,7 @@
           Tambah
         </v-btn>
       </v-card-title>
-      <v-data-table :headers="headers" :items="todos" :search="search">
+      <v-data-table :headers="headers" :items="todos" :search="search" :expanded.sync="expanded" show-expand item-key="task">
         <template v-slot:[`item.priority`]="{ item }">
           <v-chip :color="getColorPriority(item.priority)" label outlined>
             {{ item.priority }}
@@ -31,6 +31,14 @@
           <v-icon color="error" @click="deleteItemConfirm(item)">
             mdi-delete
           </v-icon>
+        </template>
+        <template v-slot:expanded-item="{ headers, item }">
+          <td :colspan="headers.length" class="py-3 px-10">
+            <p class="text-h6">Note :</p>
+            <p class="subtitle-1">
+              {{ item.note }}
+            </p>
+          </td>
         </template>
       </v-data-table>
     </v-card>
@@ -46,6 +54,8 @@
               v-model="formTodo.task"
               label="Task"
               required
+              @input="checkTask"
+              :error-messages="taskErrorMsg"
             ></v-text-field>
 
             <v-select
@@ -101,6 +111,7 @@ export default {
       search: null,
       dialog: false,
       dialogDelete: false,
+      expanded: [],
       headers: [
         {
           text: "Task",
@@ -109,7 +120,7 @@ export default {
           value: "task",
         },
         { text: "Priority", value: "priority" },
-        { text: "Note", value: "note" },
+        // { text: "Note", value: "note" },
         { text: "Actions", value: "actions" },
       ],
       todos: [
@@ -134,20 +145,21 @@ export default {
         priority: null,
         note: null,
       },
+      taskErrorMsg: [],
     };
   },
   methods: {
     getColorPriority(priority) {
-      console.log(priority);
       if (priority === "Penting") return "error";
       else if (priority === "Biasa") return "info";
       else return "success";
     },
     save(idEdit = null) {
-      console.log(idEdit);
-      idEdit ? this.edit(idEdit) : this.add();
-      this.resetForm();
-      this.dialog = false;
+      if (this.taskErrorMsg.length == 0) {
+        idEdit == null ? this.add() : this.edit(idEdit);
+        this.resetForm();
+        this.dialog = false;
+      }
     },
     cancel() {
       this.resetForm();
@@ -169,6 +181,7 @@ export default {
         note: null,
       };
       this.idEdit = null;
+      this.taskErrorMsg = []
     },
     add() {
       this.todos.push(this.formTodo);
@@ -177,7 +190,6 @@ export default {
       this.todos[idEdit].task = this.formTodo.task;
       this.todos[idEdit].priority = this.formTodo.priority;
       this.todos[idEdit].note = this.formTodo.note;
-      console.log(this.todos[idEdit]);
     },
     deleteItemConfirm(item) {
       this.idEdit = this.todos.indexOf(item);
@@ -192,6 +204,14 @@ export default {
       this.resetForm();
       this.dialogDelete = false;
     },
+    checkTask() {
+      this.todos.forEach(todo => {
+        if (this.formTodo.task === todo.task) {
+          this.taskErrorMsg.push("Task sudah ada")
+          return true
+        }
+      })
+    }
   },
 };
 </script>
