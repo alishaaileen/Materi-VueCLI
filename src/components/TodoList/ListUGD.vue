@@ -148,7 +148,7 @@ export default {
     },
     save(idEdit = null) {
       console.log(idEdit);
-      idEdit ? this.edit(idEdit) : this.add();
+      idEdit == null ? this.add() : this.edit(idEdit);
       this.resetForm();
       this.dialog = false;
     },
