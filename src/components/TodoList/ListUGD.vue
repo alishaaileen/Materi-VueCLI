@@ -19,6 +19,10 @@
           :items="['Penting', 'Tidak penting']"
           label="Urutkan"
           @input="sortByPriority"
+          class="mr-3"
+          hide-details
+          dense
+          
           outlined
         ></v-select>
         <v-btn color="success" dark @click="dialog = true">
@@ -146,32 +150,32 @@ export default {
           note: "masak air 500ml",
         },
         {
-          task: "bernafas",
+          task: "b",
           priority: "Penting",
           note: "huffttt",
         },
         {
-          task: "nongkrong",
+          task: "n",
           priority: "Tidak penting",
           note: "bersama tman2",
         },
         {
-          task: "masak",
+          task: "m",
           priority: "Biasa",
           note: "masak air 500ml",
         },
         {
-          task: "bernafas",
+          task: "s",
           priority: "Biasa",
           note: "huffttt",
         },
         {
-          task: "nongkrong",
+          task: "g",
           priority: "Tidak penting",
           note: "bersama tman2",
         },
         {
-          task: "masak",
+          task: "k",
           priority: "Penting",
           note: "masak air 500ml",
         },
@@ -241,10 +245,38 @@ export default {
     sortByPriority() {
       if (this.sortTerpilih === 'Penting') {
         this.todos.sort( (a, b) => {
-          (a.priority == 'Tidak penting') ? 1 : ((a.priority == 'Penting') ? -1 : 0)
+          var valueA = (a.priority == 'Penting' ? 2 : (a.priority == 'Biasa' ? 1 : 0));
+          var valueB = (b.priority == 'Penting' ? 2 : (b.priority == 'Biasa' ? 1 : 0));
+
+          if (valueA == valueB) {
+            if (a.priority == "Penting") {
+              return -1
+            } else if (a.priority == "Biasa") {
+              return 0
+            } else if (a.priority == "Tidak penting") {
+              return 1
+            }
+          } else {
+            return valueA > valueB ? -1 : 1
+          }
         })
       } else if (this.sortTerpilih === 'Tidak penting') {
-        this.todos.sort( (a, b) => (a.priority == 'Penting') ? 1 : ((a.priority == 'Tidak penting') ? -1 : 0))
+        this.todos.sort( (a, b) => {
+          var valueA = (a.priority == 'Penting' ? 2 : (a.priority == 'Biasa' ? 1 : 0));
+          var valueB = (b.priority == 'Penting' ? 2 : (b.priority == 'Biasa' ? 1 : 0));
+
+          if (valueA == valueB) {
+            if (a.priority == "Penting") {
+              return 1
+            } else if (a.priority == "Biasa") {
+              return 0
+            } else if (a.priority == "Tidak penting") {
+              return -1
+            }
+          } else {
+            return valueA > valueB ? 1 : -1
+          }
+        })
       }
     }
   },
