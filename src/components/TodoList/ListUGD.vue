@@ -14,6 +14,9 @@
           hide-details
         ></v-text-field>
         <v-spacer></v-spacer>
+        <v-btn color="purple mr-3" dark @click="dialogRecycleBin.state = true">
+          Todo Selesai
+        </v-btn>
         <v-btn color="success" dark @click="dialog = true">
           Tambah
         </v-btn>
@@ -91,6 +94,27 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialogRecycleBin.state" max-width="800">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Finished To do</span>
+        </v-card-title>
+        <v-data-table :headers="dialogRecycleBin.headers" :items="dialogRecycleBin.todos">
+        <template v-slot:[`item.priority`]="{ item }">
+          <v-chip :color="getColorPriority(item.priority)" label outlined>
+            {{ item.priority }}
+          </v-chip>
+        </template>
+      </v-data-table>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="info" text @click="dialogRecycleBin.state = false">
+          Close
+        </v-btn>
+      </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-main>
 </template>
 <script>
@@ -134,18 +158,25 @@ export default {
         priority: null,
         note: null,
       },
+      dialogRecycleBin: {
+        state: false,
+        headers: [
+          { text: "Task", align: "start", sortable: true, value: "task" },
+          { text: "Priority", value: "priority" },
+          { text: "Note", value: "note" },
+        ],
+        todos: []
+      }
     };
   },
   methods: {
     getColorPriority(priority) {
-      console.log(priority);
       if (priority === "Penting") return "error";
       else if (priority === "Biasa") return "info";
       else return "success";
     },
     save(idEdit = null) {
-      console.log(idEdit);
-      idEdit ? this.edit(idEdit) : this.add();
+      idEdit == null ? this.add() : this.edit(idEdit);
       this.resetForm();
       this.dialog = false;
     },
@@ -170,15 +201,18 @@ export default {
       };
       this.idEdit = null;
     },
+    // CREATE ===========================================
     add() {
       this.todos.push(this.formTodo);
     },
+    // EDIT ===========================================
     edit(idEdit) {
       this.todos[idEdit].task = this.formTodo.task;
       this.todos[idEdit].priority = this.formTodo.priority;
       this.todos[idEdit].note = this.formTodo.note;
       console.log(this.todos[idEdit]);
     },
+    // DELETE ===========================================
     deleteItemConfirm(item) {
       this.idEdit = this.todos.indexOf(item);
       this.dialogDelete = true;
@@ -188,6 +222,7 @@ export default {
       this.dialogDelete = false;
     },
     deleteItem() {
+      this.dialogRecycleBin.todos.push(this.todos[this.idEdit])
       this.todos.splice(this.idEdit, 1);
       this.resetForm();
       this.dialogDelete = false;
