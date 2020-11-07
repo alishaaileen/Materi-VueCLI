@@ -14,6 +14,13 @@
           hide-details
         ></v-text-field>
         <v-spacer></v-spacer>
+        <v-select
+          v-model="sortTerpilih"
+          :items="['Penting', 'Tidak penting']"
+          label="Urutkan"
+          @input="sortByPriority"
+          outlined
+        ></v-select>
         <v-btn color="success" dark @click="dialog = true">
           Tambah
         </v-btn>
@@ -54,8 +61,6 @@
               v-model="formTodo.task"
               label="Task"
               required
-              @input="checkTask"
-              :error-messages="taskErrorMsg"
             ></v-text-field>
 
             <v-select
@@ -111,6 +116,7 @@ export default {
       search: null,
       dialog: false,
       dialogDelete: false,
+      sortTerpilih: "",
       expanded: [],
       headers: [
         {
@@ -139,13 +145,42 @@ export default {
           priority: "Biasa",
           note: "masak air 500ml",
         },
+        {
+          task: "bernafas",
+          priority: "Penting",
+          note: "huffttt",
+        },
+        {
+          task: "nongkrong",
+          priority: "Tidak penting",
+          note: "bersama tman2",
+        },
+        {
+          task: "masak",
+          priority: "Biasa",
+          note: "masak air 500ml",
+        },
+        {
+          task: "bernafas",
+          priority: "Biasa",
+          note: "huffttt",
+        },
+        {
+          task: "nongkrong",
+          priority: "Tidak penting",
+          note: "bersama tman2",
+        },
+        {
+          task: "masak",
+          priority: "Penting",
+          note: "masak air 500ml",
+        },
       ],
       formTodo: {
         task: null,
         priority: null,
         note: null,
       },
-      taskErrorMsg: [],
     };
   },
   methods: {
@@ -155,11 +190,9 @@ export default {
       else return "success";
     },
     save(idEdit = null) {
-      if (this.taskErrorMsg.length == 0) {
-        idEdit == null ? this.add() : this.edit(idEdit);
-        this.resetForm();
-        this.dialog = false;
-      }
+      idEdit == null ? this.add() : this.edit(idEdit);
+      this.resetForm();
+      this.dialog = false;
     },
     cancel() {
       this.resetForm();
@@ -181,7 +214,6 @@ export default {
         note: null,
       };
       this.idEdit = null;
-      this.taskErrorMsg = []
     },
     add() {
       this.todos.push(this.formTodo);
@@ -190,6 +222,7 @@ export default {
       this.todos[idEdit].task = this.formTodo.task;
       this.todos[idEdit].priority = this.formTodo.priority;
       this.todos[idEdit].note = this.formTodo.note;
+      console.log(this.todos[idEdit]);
     },
     deleteItemConfirm(item) {
       this.idEdit = this.todos.indexOf(item);
@@ -204,14 +237,19 @@ export default {
       this.resetForm();
       this.dialogDelete = false;
     },
-    checkTask() {
-      this.todos.forEach(todo => {
-        if (this.formTodo.task === todo.task) {
-          this.taskErrorMsg.push("Task sudah ada")
-          return true
-        }
-      })
+    // SORT =====================================
+    sortByPriority() {
+      if (this.sortTerpilih === 'Penting') {
+        this.todos.sort( (a, b) => {
+          (a.priority == 'Tidak penting') ? 1 : ((a.priority == 'Penting') ? -1 : 0)
+        })
+      } else if (this.sortTerpilih === 'Tidak penting') {
+        this.todos.sort( (a, b) => (a.priority == 'Penting') ? 1 : ((a.priority == 'Tidak penting') ? -1 : 0))
+      }
     }
   },
+  computed: {
+    
+  }
 };
 </script>
