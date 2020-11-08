@@ -1,40 +1,61 @@
 <!-- @format -->
 
 <template>
-  <v-main class="list-tugas">
+  <v-main class="list-UGD">
     <h3 class="text-h3 font-weight-medium mb-5">To Do List UGD</h3>
 
-    <v-card>
-      <v-card-title>
-        <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          label="Search"
-          single-line
-          hide-details
-        ></v-text-field>
-        <v-spacer></v-spacer>
-        <v-btn color="success" dark @click="dialog = true">
-          Tambah
-        </v-btn>
-      </v-card-title>
-      <v-data-table :headers="headers" :items="todos" :search="search">
-        <template v-slot:[`item.actions`]="{ item }">
-          <v-icon color="info" class="mr-2" @click="setFormEdit(item)">
-            mdi-pencil
-          </v-icon>
-          <v-icon color="error" @click="deleteItemConfirm(item)">
-            mdi-delete
-          </v-icon>
-        </template>
-        <template v-slot:[`item.deleteMultiple`]="{ item }">
+    <div class="d-flex align-start">
+      <v-card max-width="500">
+        <v-card-title>
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+          ></v-text-field>
+          <v-spacer></v-spacer>
+          <v-btn color="success" dark @click="dialog = true">
+            Tambah
+          </v-btn>
+        </v-card-title>
+        <v-data-table :headers="headers" :items="todos" :search="search">
+          <template v-slot:[`item.priority`]="{ item }">
+            <v-chip :color="getColorPriority(item.priority)" label outlined>
+              {{ item.priority }}
+            </v-chip>
+          </template>
+          <template v-slot:[`item.actions`]="{ item }">
+            <v-icon color="info" class="mr-2" @click="openDetail(item)">
+              mdi-note-outline
+            </v-icon>
+          </template>
+          <template v-slot:[`item.deleteMultiple`]="{ item }">
           <v-checkbox
             v-model="checkedDeleteMultiple"
             :value="item"
           ></v-checkbox>
         </template>
-      </v-data-table>
-    </v-card>
+        </v-data-table>
+      </v-card>
+      
+      <div class="ml-5" v-show="detail.task">
+        <h4 class="text-h4 mb-5">
+          {{ detail.task }}
+          <v-chip :color="getColorPriority(detail.priority)" class="ml-5" label>
+            {{ detail.priority }}
+          </v-chip>
+        </h4>
+        
+        <p class="subtitle-1 mb-5">{{ detail.note }}</p>
+        <v-icon color="info" class="mr-2" @click="setFormEdit(detail)">
+          mdi-pencil
+        </v-icon>
+        <v-icon color="error" @click="deleteItemConfirm(detail)">
+          mdi-delete
+        </v-icon>
+      </div>
+    </div>   
 
     <v-card class="my-5 pa-5" v-show="checkedDeleteMultiple.length">
       <p class="subtitle-1">
@@ -44,7 +65,7 @@
         </ul>
       </p>
       <v-btn color="error" @click="deleteMultiple">Hapus semua</v-btn>
-    </v-card>
+    </v-card> 
 
     <v-dialog v-model="dialog" persistent max-width="600px">
       <v-card>
@@ -121,7 +142,7 @@ export default {
           value: "task",
         },
         { text: "Priority", value: "priority" },
-        { text: "Note", value: "note" },
+        // { text: "Note", value: "note" },
         { text: "Actions", value: "actions" },
         { text: "", value: "deleteMultiple" },
       ],
@@ -147,11 +168,21 @@ export default {
         priority: null,
         note: null,
       },
+      detail: {
+        task: null,
+        priority: null,
+        note: null,
+      }
     };
   },
   methods: {
+    getColorPriority(priority) {
+      if (priority === "Penting") return "error";
+      else if (priority === "Biasa") return "info";
+      else return "success";
+    },
     save(idEdit = null) {
-      idEdit ? this.edit(idEdit) : this.add();
+      idEdit == null ? this.add() : this.edit(idEdit);
       this.resetForm();
       this.dialog = false;
     },
@@ -160,7 +191,7 @@ export default {
       this.dialog = false;
     },
     setFormEdit(item) {
-      this.idEdit = this.todos.indexOf(item);
+      this.idEdit = item.index
 
       this.formTodo.task = item.task;
       this.formTodo.priority = item.priority;
@@ -176,14 +207,18 @@ export default {
       };
       this.idEdit = null;
     },
+    // CREATE ===========================================
     add() {
       this.todos.push(this.formTodo);
     },
+    // EDIT ===========================================
     edit(idEdit) {
       this.todos[idEdit].task = this.formTodo.task;
       this.todos[idEdit].priority = this.formTodo.priority;
       this.todos[idEdit].note = this.formTodo.note;
+      this.resetDetail()
     },
+    // DELETE ===========================================
     deleteItemConfirm(item) {
       this.idEdit = this.todos.indexOf(item);
       this.dialogDelete = true;
@@ -196,13 +231,32 @@ export default {
       this.todos.splice(this.idEdit, 1);
       this.resetForm();
       this.dialogDelete = false;
+      this.resetDetail();
     },
+    // DETAIL ===========================================
+    openDetail(todo) {
+      this.detail.index = this.todos.indexOf(todo)
+      this.detail.task = todo.task
+      this.detail.priority = todo.priority
+      this.detail.note = todo.note
+    },
+    resetDetail() {
+      this.detail = {
+        task: null,
+        priority: null,
+        note: null,
+      }
+    },
+    // DETAIL ===========================================
     deleteMultiple() {
       let id = 0
       
       this.checkedDeleteMultiple.forEach(e => {
         id = this.todos.indexOf(e);
         this.todos.splice(id, 1);
+
+        if (id == this.detail.index)
+          this.resetDetail()
       });
 
       this.checkedDeleteMultiple = []
