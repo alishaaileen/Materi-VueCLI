@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <template>
-  <v-main class="list-tugas">
+  <v-main class="list-UGD">
     <h3 class="text-h3 font-weight-medium mb-5">To Do List UGD</h3>
 
     <v-card>
@@ -14,11 +14,26 @@
           hide-details
         ></v-text-field>
         <v-spacer></v-spacer>
+        <v-select
+          v-model="sortTerpilih"
+          :items="['Penting', 'Tidak penting']"
+          label="Urutkan"
+          @input="sortByPriority"
+          class="mr-3"
+          hide-details
+          dense
+          outlined
+        ></v-select>
         <v-btn color="success" dark @click="dialog = true">
           Tambah
         </v-btn>
       </v-card-title>
-      <v-data-table :headers="headers" :items="todos" :search="search">
+      <v-data-table :headers="headers" :items="todos" :search="search" :expanded.sync="expanded" show-expand item-key="task">
+        <template v-slot:[`item.priority`]="{ item }">
+          <v-chip :color="getColorPriority(item.priority)" label outlined>
+            {{ item.priority }}
+          </v-chip>
+        </template>
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon color="info" class="mr-2" @click="setFormEdit(item)">
             mdi-pencil
@@ -26,6 +41,14 @@
           <v-icon color="error" @click="deleteItemConfirm(item)">
             mdi-delete
           </v-icon>
+        </template>
+        <template v-slot:expanded-item="{ headers, item }">
+          <td :colspan="headers.length" class="py-3 px-10">
+            <p class="text-h6">Note :</p>
+            <p class="subtitle-1">
+              {{ item.note }}
+            </p>
+          </td>
         </template>
         <template v-slot:[`item.deleteMultiple`]="{ item }">
           <v-checkbox
@@ -112,6 +135,8 @@ export default {
       search: null,
       dialog: false,
       dialogDelete: false,
+      sortTerpilih: "",
+      expanded: [],
       checkedDeleteMultiple: [],
       headers: [
         {
@@ -121,7 +146,7 @@ export default {
           value: "task",
         },
         { text: "Priority", value: "priority" },
-        { text: "Note", value: "note" },
+        // { text: "Note", value: "note" },
         { text: "Actions", value: "actions" },
         { text: "", value: "deleteMultiple" },
       ],
@@ -141,6 +166,36 @@ export default {
           priority: "Biasa",
           note: "masak air 500ml",
         },
+        {
+          task: "b",
+          priority: "Penting",
+          note: "huffttt",
+        },
+        {
+          task: "n",
+          priority: "Tidak penting",
+          note: "bersama tman2",
+        },
+        {
+          task: "m",
+          priority: "Biasa",
+          note: "masak air 500ml",
+        },
+        {
+          task: "s",
+          priority: "Biasa",
+          note: "huffttt",
+        },
+        {
+          task: "g",
+          priority: "Tidak penting",
+          note: "bersama tman2",
+        },
+        {
+          task: "k",
+          priority: "Penting",
+          note: "masak air 500ml",
+        },
       ],
       formTodo: {
         task: null,
@@ -150,8 +205,13 @@ export default {
     };
   },
   methods: {
+    getColorPriority(priority) {
+      if (priority === "Penting") return "error";
+      else if (priority === "Biasa") return "info";
+      else return "success";
+    },
     save(idEdit = null) {
-      idEdit ? this.edit(idEdit) : this.add();
+      idEdit == null ? this.add() : this.edit(idEdit);
       this.resetForm();
       this.dialog = false;
     },
@@ -176,14 +236,17 @@ export default {
       };
       this.idEdit = null;
     },
+    // CREATE =====================================
     add() {
       this.todos.push(this.formTodo);
     },
+    // EDIT =====================================
     edit(idEdit) {
       this.todos[idEdit].task = this.formTodo.task;
       this.todos[idEdit].priority = this.formTodo.priority;
       this.todos[idEdit].note = this.formTodo.note;
     },
+    // DELETE =====================================
     deleteItemConfirm(item) {
       this.idEdit = this.todos.indexOf(item);
       this.dialogDelete = true;
@@ -197,6 +260,45 @@ export default {
       this.resetForm();
       this.dialogDelete = false;
     },
+    // SORT =====================================
+    sortByPriority() {
+      if (this.sortTerpilih === 'Penting') {
+        this.todos.sort( (a, b) => {
+          var valueA = (a.priority == 'Penting' ? 2 : (a.priority == 'Biasa' ? 1 : 0));
+          var valueB = (b.priority == 'Penting' ? 2 : (b.priority == 'Biasa' ? 1 : 0));
+
+          if (valueA == valueB) {
+            if (a.priority == "Penting") {
+              return -1
+            } else if (a.priority == "Biasa") {
+              return 0
+            } else if (a.priority == "Tidak penting") {
+              return 1
+            }
+          } else {
+            return valueA > valueB ? -1 : 1
+          }
+        })
+      } else if (this.sortTerpilih === 'Tidak penting') {
+        this.todos.sort( (a, b) => {
+          var valueA = (a.priority == 'Penting' ? 2 : (a.priority == 'Biasa' ? 1 : 0));
+          var valueB = (b.priority == 'Penting' ? 2 : (b.priority == 'Biasa' ? 1 : 0));
+
+          if (valueA == valueB) {
+            if (a.priority == "Penting") {
+              return 1
+            } else if (a.priority == "Biasa") {
+              return 0
+            } else if (a.priority == "Tidak penting") {
+              return -1
+            }
+          } else {
+            return valueA > valueB ? 1 : -1
+          }
+        })
+      }
+    },
+    // DELETE MULTIPLE =====================================
     deleteMultiple() {
       let id = 0
       

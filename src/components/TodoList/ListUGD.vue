@@ -22,7 +22,6 @@
           class="mr-3"
           hide-details
           dense
-          
           outlined
         ></v-select>
         <v-btn color="success" dark @click="dialog = true">
@@ -219,15 +218,18 @@ export default {
       };
       this.idEdit = null;
     },
+    // CREATE =====================================
     add() {
       this.todos.push(this.formTodo);
     },
+    // EDIT =====================================
     edit(idEdit) {
       this.todos[idEdit].task = this.formTodo.task;
       this.todos[idEdit].priority = this.formTodo.priority;
       this.todos[idEdit].note = this.formTodo.note;
       console.log(this.todos[idEdit]);
     },
+    // DELETE =====================================
     deleteItemConfirm(item) {
       this.idEdit = this.todos.indexOf(item);
       this.dialogDelete = true;
@@ -280,8 +282,5 @@ export default {
       }
     }
   },
-  computed: {
-    
-  }
 };
 </script>
