@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <template>
-  <v-main class="list-tugas">
+  <v-main class="list-UGD">
     <h3 class="text-h3 font-weight-medium mb-5">To Do List UGD</h3>
 
     <v-card>
@@ -14,12 +14,18 @@
           hide-details
         ></v-text-field>
         <v-spacer></v-spacer>
-        <v-btn color="success" dark @click="dialog = true">
-          Tambah
-        </v-btn>
+        <v-btn color="success" dark @click="dialog = true"> Tambah </v-btn>
       </v-card-title>
       <v-data-table :headers="headers" :items="todos" :search="search">
+        <template v-slot:[`item.priority`]="{ item }">
+          <v-chip :color="getColorPriority(item.priority)" label outlined>
+            {{ item.priority }}
+          </v-chip>
+        </template>
         <template v-slot:[`item.actions`]="{ item }">
+          <v-icon color="purple" class="mr-2" @click="openDialogDetail(item)">
+            mdi-text-box-search-outline
+          </v-icon>
           <v-icon color="info" class="mr-2" @click="setFormEdit(item)">
             mdi-pencil
           </v-icon>
@@ -45,6 +51,36 @@
       </p>
       <v-btn color="error" @click="deleteMultiple">Hapus semua</v-btn>
     </v-card>
+
+    <!-- ============= -->
+    <!-- DIALOG DETAIL -->
+    <!-- ============= -->
+    <v-dialog v-model="dialogDetail.state" max-width="600px">
+      <v-card>
+        <v-card-text>
+          <v-container>
+            <h4 class="text-h4 mb-5 black--text">
+              {{ dialogDetail.judul }}
+            </h4>
+            <v-chip
+              :color="getColorPriority(dialogDetail.prioritas)"
+              label
+              outlined
+              class="mb-5"
+            >
+              {{ dialogDetail.prioritas }}
+            </v-chip>
+            <p class="subtitle-1">{{ dialogDetail.catatan }}</p>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="dialogDetail.state = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-dialog v-model="dialog" persistent max-width="600px">
       <v-card>
@@ -75,30 +111,22 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="cancel">
-            Cancel
-          </v-btn>
-          <v-btn color="blue darken-1" text @click="save(idEdit)">
-            Save
-          </v-btn>
+          <v-btn color="blue darken-1" text @click="cancel"> Cancel </v-btn>
+          <v-btn color="blue darken-1" text @click="save(idEdit)"> Save </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="dialogDelete" persistent max-width="350">
       <v-card>
-        <v-card-title class="headline">
-          Yakin ingin menghapus?
-        </v-card-title>
+        <v-card-title class="headline"> Yakin ingin menghapus? </v-card-title>
         <v-card-text></v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" text @click="cancelDelete">
             Tidak
           </v-btn>
-          <v-btn color="red darken-1" text @click="deleteItem()">
-            Ya
-          </v-btn>
+          <v-btn color="red darken-1" text @click="deleteItem()"> Ya </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -106,7 +134,7 @@
 </template>
 <script>
 export default {
-  name: "List",
+  name: "List Tugas",
   data() {
     return {
       search: null,
@@ -121,7 +149,6 @@ export default {
           value: "task",
         },
         { text: "Priority", value: "priority" },
-        { text: "Note", value: "note" },
         { text: "Actions", value: "actions" },
         { text: "", value: "deleteMultiple" },
       ],
@@ -147,11 +174,23 @@ export default {
         priority: null,
         note: null,
       },
+      dialogDetail: {
+        state: false,
+        judul: null,
+        priority: null,
+        catatan: null,
+      },
     };
   },
   methods: {
+    getColorPriority(priority) {
+      if (priority === "Penting") return "error";
+      else if (priority === "Biasa") return "info";
+      else return "success";
+    },
     save(idEdit = null) {
-      idEdit ? this.edit(idEdit) : this.add();
+      console.log(idEdit);
+      idEdit == null ? this.add() : this.edit(idEdit);
       this.resetForm();
       this.dialog = false;
     },
@@ -176,14 +215,18 @@ export default {
       };
       this.idEdit = null;
     },
+    // CREATE ================================
     add() {
       this.todos.push(this.formTodo);
     },
+    // EDIT ================================
     edit(idEdit) {
       this.todos[idEdit].task = this.formTodo.task;
       this.todos[idEdit].priority = this.formTodo.priority;
       this.todos[idEdit].note = this.formTodo.note;
+      console.log(this.todos[idEdit]);
     },
+    // DELETE ================================
     deleteItemConfirm(item) {
       this.idEdit = this.todos.indexOf(item);
       this.dialogDelete = true;
@@ -197,6 +240,15 @@ export default {
       this.resetForm();
       this.dialogDelete = false;
     },
+    // DIALOG DETAIL ================================
+    openDialogDetail(todo) {
+      console.log(todo);
+      this.dialogDetail.state = true;
+      this.dialogDetail.judul = todo.task;
+      this.dialogDetail.prioritas = todo.priority;
+      this.dialogDetail.catatan = todo.note;
+    },
+    // DELETE MULTIPLE ================================
     deleteMultiple() {
       let id = 0
       

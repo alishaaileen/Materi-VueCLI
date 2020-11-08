@@ -197,15 +197,18 @@ export default {
       };
       this.idEdit = null;
     },
+    // CREATE ================================
     add() {
       this.todos.push(this.formTodo);
     },
+    // EDIT ================================
     edit(idEdit) {
       this.todos[idEdit].task = this.formTodo.task;
       this.todos[idEdit].priority = this.formTodo.priority;
       this.todos[idEdit].note = this.formTodo.note;
       console.log(this.todos[idEdit]);
     },
+    // DELETE ================================
     deleteItemConfirm(item) {
       this.idEdit = this.todos.indexOf(item);
       this.dialogDelete = true;
@@ -219,6 +222,7 @@ export default {
       this.resetForm();
       this.dialogDelete = false;
     },
+    // DIALOG DETAIL ================================
     openDialogDetail(todo) {
       console.log(todo);
       this.dialogDetail.state = true;
