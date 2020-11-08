@@ -253,10 +253,10 @@ export default {
       
       this.checkedDeleteMultiple.forEach(e => {
         id = this.todos.indexOf(e);
-        this.todos.splice(id, 1);
 
-        if (id == this.detail.index)
-          this.resetDetail()
+        this.todos[id].task == this.detail.task ? this.resetDetail() : null;
+
+        this.todos.splice(id, 1);
       });
 
       this.checkedDeleteMultiple = []
