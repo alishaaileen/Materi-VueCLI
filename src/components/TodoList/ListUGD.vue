@@ -147,7 +147,6 @@ export default {
       else return "success";
     },
     save(idEdit = null) {
-      console.log(idEdit);
       idEdit == null ? this.add() : this.edit(idEdit);
       this.resetForm();
       this.dialog = false;
@@ -173,15 +172,18 @@ export default {
       };
       this.idEdit = null;
     },
+    // CREATE ================================
     add() {
       this.todos.push(this.formTodo);
     },
+    // EDIT ================================
     edit(idEdit) {
       this.todos[idEdit].task = this.formTodo.task;
       this.todos[idEdit].priority = this.formTodo.priority;
       this.todos[idEdit].note = this.formTodo.note;
       console.log(this.todos[idEdit]);
     },
+    // DELETE ================================
     deleteItemConfirm(item) {
       this.idEdit = this.todos.indexOf(item);
       this.dialogDelete = true;
@@ -197,6 +199,7 @@ export default {
     },
   },
   computed: {
+    // FILTER ================================
     filteredPriority() {
       if (this.filterPriority == "All priority") {
         return this.todos;

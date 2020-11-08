@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <template>
-  <v-main class="list-tugas">
+  <v-main class="list-UGD">
     <h3 class="text-h3 font-weight-medium mb-5">To Do List UGD</h3>
 
     <v-card>
@@ -14,11 +14,27 @@
           hide-details
         ></v-text-field>
         <v-spacer></v-spacer>
-        <v-btn color="success" dark @click="dialog = true">
-          Tambah
-        </v-btn>
+        <v-select
+          :items="['All priority', 'Penting', 'Biasa', 'Tidak penting']"
+          v-model="filterPriority"
+          outlined
+          label="Priority"
+          class="mr-3"
+          hide-details
+          dense
+        ></v-select>
+        <v-btn color="success" dark @click="dialog = true"> Tambah </v-btn>
       </v-card-title>
-      <v-data-table :headers="headers" :items="todos" :search="search">
+      <v-data-table
+        :headers="headers"
+        :items="filteredPriority"
+        :search="search"
+      >
+        <!-- <template v-slot:[`item.priority`]="{ item }">
+          <v-chip :color="getColorPriority(item.priority)" label outlined>
+            {{ item.priority }}
+          </v-chip>
+        </template> -->
         <template v-slot:[`item.actions`]="{ item }">
           <v-icon color="info" class="mr-2" @click="setFormEdit(item)">
             mdi-pencil
@@ -75,30 +91,22 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="cancel">
-            Cancel
-          </v-btn>
-          <v-btn color="blue darken-1" text @click="save(idEdit)">
-            Save
-          </v-btn>
+          <v-btn color="blue darken-1" text @click="cancel"> Cancel </v-btn>
+          <v-btn color="blue darken-1" text @click="save(idEdit)"> Save </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="dialogDelete" persistent max-width="350">
       <v-card>
-        <v-card-title class="headline">
-          Yakin ingin menghapus?
-        </v-card-title>
+        <v-card-title class="headline"> Yakin ingin menghapus? </v-card-title>
         <v-card-text></v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="green darken-1" text @click="cancelDelete">
             Tidak
           </v-btn>
-          <v-btn color="red darken-1" text @click="deleteItem()">
-            Ya
-          </v-btn>
+          <v-btn color="red darken-1" text @click="deleteItem()"> Ya </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -112,6 +120,7 @@ export default {
       search: null,
       dialog: false,
       dialogDelete: false,
+      filterPriority: "All priority",
       checkedDeleteMultiple: [],
       headers: [
         {
@@ -150,8 +159,13 @@ export default {
     };
   },
   methods: {
+    getColorPriority(priority) {
+      if (priority === "Penting") return "error";
+      else if (priority === "Biasa") return "info";
+      else return "success";
+    },
     save(idEdit = null) {
-      idEdit ? this.edit(idEdit) : this.add();
+      idEdit == null ? this.add() : this.edit(idEdit);
       this.resetForm();
       this.dialog = false;
     },
@@ -176,14 +190,18 @@ export default {
       };
       this.idEdit = null;
     },
+    // CREATE ================================
     add() {
       this.todos.push(this.formTodo);
     },
+    // EDIT ================================
     edit(idEdit) {
       this.todos[idEdit].task = this.formTodo.task;
       this.todos[idEdit].priority = this.formTodo.priority;
       this.todos[idEdit].note = this.formTodo.note;
+      console.log(this.todos[idEdit]);
     },
+    // DELETE ================================
     deleteItemConfirm(item) {
       this.idEdit = this.todos.indexOf(item);
       this.dialogDelete = true;
@@ -197,8 +215,9 @@ export default {
       this.resetForm();
       this.dialogDelete = false;
     },
+    // DELETE MULTIPLE ================================
     deleteMultiple() {
-      let id = 0
+      let id
       
       this.checkedDeleteMultiple.forEach(e => {
         id = this.todos.indexOf(e);
@@ -207,6 +226,18 @@ export default {
 
       this.checkedDeleteMultiple = []
     }
+  },
+  computed: {
+    // FILTER ================================
+    filteredPriority() {
+      if (this.filterPriority == "All priority") {
+        return this.todos;
+      } else {
+        return this.todos.filter((todo) => {
+          return todo.priority == this.filterPriority;
+        });
+      }
+    },
   },
 };
 </script>
