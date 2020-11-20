@@ -19,6 +19,9 @@
         </v-btn>
       </v-card-title>
       <v-data-table :headers="headers" :items="todos" :search="search">
+        <template v-slot:[`item.note`]="{ item }">
+          <p>catatan : {{item.note}}</p>
+        </template>
         <template v-slot:[`item.actions`]="{ item }">
           <v-btn small class="mr-2" @click="editItem(item)">
             edit
